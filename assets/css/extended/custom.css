@@ -1,0 +1,323 @@
+/* =========================================================
+   PaperMod - giao diện teal tối cho blog writeup
+   Đặt file này tại: assets/css/extended/custom.css
+   ========================================================= */
+
+:root {
+  --accent: #1fd1b0;
+  --accent-dim: #14957e;
+  --accent-soft: rgba(31, 209, 176, 0.13);
+  --accent-line: rgba(31, 209, 176, 0.38);
+  --radius: 14px;
+}
+
+/* ---------- Bảng màu chế độ tối ---------- */
+.dark {
+  --theme: #0e1918;
+  /* nền trang */
+  --entry: #162624;
+  /* nền card */
+  --primary: #e4f2ef;
+  /* chữ chính */
+  --secondary: #93aeaa;
+  /* chữ phụ */
+  --tertiary: #203633;
+  /* nền phần tử nhỏ (tag, thead) */
+  --content: #cfe3df;
+  /* chữ nội dung bài */
+  --code-block-bg: #0a1413;
+  --code-bg: #203633;
+  --border: #25413d;
+}
+
+/* ---------- Font ---------- */
+body {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.7;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
+::selection {
+  background: var(--accent);
+  color: #06201b;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---------- Header ---------- */
+.header {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+
+.logo a {
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+#menu a {
+  font-weight: 600;
+  color: var(--secondary);
+}
+
+#menu a:hover,
+#menu .active {
+  color: var(--accent);
+}
+
+#menu .active {
+  border-bottom: 2px solid var(--accent);
+}
+
+/* ---------- Trang chủ: phần giới thiệu ---------- */
+.home-info .entry-header h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.home-info .entry-content {
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.social-icons a {
+  color: var(--secondary);
+}
+
+.social-icons a:hover {
+  color: var(--accent);
+}
+
+/* ---------- Card bài viết ---------- */
+.post-entry {
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.post-entry:hover {
+  border-color: var(--accent-dim);
+}
+
+/* Ảnh bìa tràn sát mép trên của card */
+.post-entry .entry-cover {
+  margin: -22px -24px 20px;
+}
+
+.post-entry .entry-cover img {
+  width: 100%;
+  max-height: 230px;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* Tiêu đề có thanh nhấn bên trái */
+.post-entry .entry-header h2 {
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--accent);
+  border-left: 4px solid var(--accent);
+  padding-left: 14px;
+  margin-bottom: 10px;
+}
+
+.post-entry .entry-content {
+  color: var(--secondary);
+  margin: 12px 0;
+}
+
+.entry-footer {
+  color: var(--secondary);
+  font-size: 0.85rem;
+}
+
+/* ---------- Tag (dạng pill) ---------- */
+.post-tags {
+  gap: 8px;
+  margin: 18px 0 0;
+}
+
+.post-tags li {
+  margin: 0;
+}
+
+.post-tags a {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent-line);
+  border-radius: 8px;
+  padding: 3px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.post-tags a:hover {
+  background: var(--accent);
+  color: #06201b;
+}
+
+/* ---------- Trang bài viết ---------- */
+.post-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--primary);
+  border-left: 5px solid var(--accent);
+  padding-left: 16px;
+}
+
+.post-meta {
+  color: var(--secondary);
+}
+
+.post-content h2 {
+  color: var(--accent);
+  font-weight: 800;
+  margin-top: 2.4rem;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.post-content h3 {
+  color: var(--primary);
+  font-weight: 700;
+  margin-top: 2rem;
+  padding-left: 12px;
+  border-left: 3px solid var(--accent);
+}
+
+.post-content a {
+  color: var(--accent);
+  box-shadow: none;
+  border-bottom: 1px solid var(--accent-line);
+}
+
+.post-content a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.post-content img {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+/* Code */
+.post-content pre {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.post-content :not(pre)>code {
+  color: var(--accent);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+/* Bảng */
+.post-content table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.post-content thead th {
+  background: var(--tertiary);
+  color: var(--accent);
+  text-align: left;
+}
+
+.post-content th,
+.post-content td {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+}
+
+.post-content tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Trích dẫn */
+.post-content blockquote {
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 10px 18px;
+}
+
+/* Mục lục */
+.toc {
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.toc summary {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.toc a:hover {
+  color: var(--accent);
+}
+
+/* Nút bài trước / bài sau, phân trang */
+.paginav .title {
+  color: var(--accent);
+}
+
+.paginav a,
+.pagination a {
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.paginav a:hover,
+.pagination a:hover {
+  border-color: var(--accent-dim);
+}
+
+/* Footer */
+.footer {
+  color: var(--secondary);
+}
+
+.footer a:hover {
+  color: var(--accent);
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 600px) {
+  .post-entry {
+    padding: 18px 18px;
+  }
+
+  .post-entry .entry-cover {
+    margin: -18px -18px 16px;
+  }
+
+  .post-entry .entry-header h2 {
+    font-size: 1.35rem;
+  }
+
+  .home-info .entry-header h1 {
+    font-size: 2rem;
+  }
+}

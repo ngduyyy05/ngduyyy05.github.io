@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Endpoint Forensics on </title>
+		<link>//localhost:1313/tags/endpoint-forensics/</link>
+		<description>Recent content in Endpoint Forensics on </description>
+		<generator>Hugo</generator>
+		<language>en</language>
+		
+		
+		
+		
+			<lastBuildDate>Thu, 24 Sep 2026 10:00:00 +0700</lastBuildDate>
+		
+			<atom:link href="//localhost:1313/tags/endpoint-forensics/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>CyberDefenders - AzurePot Writeup</title>
+				<link>//localhost:1313/posts/azurepot/</link>
+				<pubDate>Thu, 24 Sep 2026 10:00:00 +0700</pubDate>
+				<guid>//localhost:1313/posts/azurepot/</guid>
+				<description>Điều tra một honeypot Ubuntu trên Azure bị khai thác CVE-2021-41773: phân tích disk image, UAC và memory dump.</description>
+			</item>
+	</channel>
+</rss>

