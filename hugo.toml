@@ -1,3 +1,8 @@
+baseURL = 'https://ngduyyy05.github.io/'
+languageCode = 'vi-vn'
+title = 'Duy Nguyen | Security Write-ups'
+theme = 'PaperMod'
+
 [params]
   defaultTheme = "dark"
   ShowReadingTime = true
