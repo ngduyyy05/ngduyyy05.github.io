@@ -13,8 +13,6 @@ TocOpen = false
   alt = "Cyber city forensic blog cover"
 +++
 
-> Nguồn tham khảo: [Odin - HackTheBox Reminiscent](https://odintheprotector.github.io/2023/09/20/hackthebox-reminiscent.html). Bài này viết lại flow điều tra để dễ đọc lại khi học memory/email forensic.
-
 ## Bối cảnh
 
 Máy ảo của một recruiter có traffic đáng ngờ. Trước khi tách máy khỏi mạng, đội điều tra đã capture memory dump. Ngoài memory còn có email để đối chiếu.
@@ -60,6 +58,15 @@ Flow ngắn gọn:
 ```text
 memory dump -> filescan resume.zip.lnk -> dump file -> strings -> base64 decode -> PowerShell -> base64 decode -> flag
 ```
+
+## Ảnh chụp phân tích
+
+![Reminiscent imageinfo](/images/imported/hackthebox-reminiscent/01.png)
+![Reminiscent process list](/images/imported/hackthebox-reminiscent/02.png)
+![Reminiscent phishing email](/images/imported/hackthebox-reminiscent/03.png)
+![Reminiscent file scan](/images/imported/hackthebox-reminiscent/04.png)
+![Reminiscent decoded PowerShell](/images/imported/hackthebox-reminiscent/05.png)
+![Reminiscent final decode](/images/imported/hackthebox-reminiscent/06.png)
 
 ## Điểm học được
 

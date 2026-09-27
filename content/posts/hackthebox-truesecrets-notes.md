@@ -13,8 +13,6 @@ TocOpen = false
   alt = "Cyber city forensic blog cover"
 +++
 
-> Nguồn tham khảo: [Odin - HackTheBox TrueSecrets](https://odintheprotector.github.io/2023/09/20/hackthebox-truesecret.html). Đây là bản viết lại ngắn gọn để học lại flow memory forensic.
-
 ## Ý tưởng chính
 
 TrueSecrets là challenge memory forensic xoay quanh TrueCrypt. Mục tiêu không chỉ là tìm file volume, mà còn phải lấy được thông tin runtime trong memory để mở volume và đọc dữ liệu bên trong.
@@ -84,6 +82,16 @@ de008160-66e4-4d51-8264-21cbc27661fc.log.enc
 - Khi tìm thấy encrypted volume, đừng brute-force vội; hãy kiểm tra plugin chuyên dụng trước.
 - Source code trong artifact thường cho luôn thuật toán và key material.
 - Session log mã hóa vẫn là log; nếu có key/IV thì timeline command của attacker sẽ lộ ra rất nhanh.
+
+## Ảnh chụp phân tích
+
+![TrueSecrets profile check](/images/imported/hackthebox-truesecrets/01.png)
+![TrueSecrets process list](/images/imported/hackthebox-truesecrets/02.png)
+![TrueSecrets console artifact](/images/imported/hackthebox-truesecrets/03.png)
+![TrueSecrets file scan](/images/imported/hackthebox-truesecrets/04.png)
+![TrueSecrets truecryptsummary](/images/imported/hackthebox-truesecrets/05.png)
+![TrueSecrets mounted volume](/images/imported/hackthebox-truesecrets/06.png)
+![TrueSecrets decrypted session](/images/imported/hackthebox-truesecrets/07.png)
 
 ## Checklist làm lại
 

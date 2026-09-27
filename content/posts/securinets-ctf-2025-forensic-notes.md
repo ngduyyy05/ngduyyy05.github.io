@@ -13,8 +13,6 @@ TocOpen = false
   alt = "Cyber city forensic blog cover"
 +++
 
-> Nguồn tham khảo: [Odin - Securinets CTF 2025 - Forensic](https://odintheprotector.github.io/2025/10/07/securinets-ctf-2025-forensic.html). Bài này là bản viết lại thành ghi chú học tập tiếng Việt, có lược bớt ảnh và code dài.
-
 ## Tổng quan
 
 Bài gốc gom nhiều challenge forensic của Securinets CTF 2025. Mình chia lại thành ba cụm để đọc dễ hơn:
@@ -135,6 +133,43 @@ Các điểm quan trọng:
 - Keystream lấy byte thấp của state sau mỗi vòng update.
 
 Vì vậy khi viết script giải mã, cần truyền đúng filename/path như malware nhìn thấy lúc mã hóa, không phải đường dẫn hiện tại trên máy phân tích.
+
+## Ảnh chụp phân tích
+
+### Silent Visitor
+
+![Silent Visitor artifact 01](/images/imported/securinets-ctf-2025/01.png)
+![Silent Visitor artifact 02](/images/imported/securinets-ctf-2025/02.png)
+![Silent Visitor artifact 03](/images/imported/securinets-ctf-2025/03.png)
+![Silent Visitor artifact 04](/images/imported/securinets-ctf-2025/04.png)
+
+### Lost File
+
+![Lost File artifact 01](/images/imported/securinets-ctf-2025/05.png)
+![Lost File artifact 02](/images/imported/securinets-ctf-2025/06.png)
+![Lost File artifact 03](/images/imported/securinets-ctf-2025/07.png)
+![Lost File artifact 04](/images/imported/securinets-ctf-2025/08.png)
+![Lost File artifact 05](/images/imported/securinets-ctf-2025/09.png)
+![Lost File artifact 06](/images/imported/securinets-ctf-2025/10.png)
+![Lost File artifact 07](/images/imported/securinets-ctf-2025/11.png)
+![Lost File artifact 08](/images/imported/securinets-ctf-2025/12.png)
+![Lost File artifact 09](/images/imported/securinets-ctf-2025/13.png)
+
+### Recovery
+
+![Recovery artifact 01](/images/imported/securinets-ctf-2025/14.png)
+![Recovery artifact 02](/images/imported/securinets-ctf-2025/15.png)
+![Recovery artifact 03](/images/imported/securinets-ctf-2025/16.png)
+![Recovery artifact 04](/images/imported/securinets-ctf-2025/17.png)
+![Recovery artifact 05](/images/imported/securinets-ctf-2025/18.png)
+![Recovery artifact 06](/images/imported/securinets-ctf-2025/19.png)
+![Recovery artifact 07](/images/imported/securinets-ctf-2025/20.png)
+![Recovery artifact 08](/images/imported/securinets-ctf-2025/21.png)
+![Recovery artifact 09](/images/imported/securinets-ctf-2025/22.png)
+![Recovery artifact 10](/images/imported/securinets-ctf-2025/23.png)
+![Recovery artifact 11](/images/imported/securinets-ctf-2025/24.png)
+![Recovery artifact 12](/images/imported/securinets-ctf-2025/25.png)
+![Recovery artifact 13](/images/imported/securinets-ctf-2025/26.png)
 
 ## Ghi chú cuối
 
