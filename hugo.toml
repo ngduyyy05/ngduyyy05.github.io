@@ -3,17 +3,26 @@ languageCode = 'vi-vn'
 title = 'Duy Nguyen | Security Write-ups'
 theme = 'PaperMod'
 
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
 [params]
   defaultTheme = "dark"
   ShowReadingTime = true
+  ShowWordCount = true
   ShowCodeCopyButtons = true
   ShowToc = true
   ShowBreadCrumbs = true
   ShowPostNavLinks = true
+  mainSections = ["posts"]
+  DateFormat = "2006-01-02"
 
   [params.homeInfoParams]
     Title = "Duy Nguyen"
     Content = "CTF Player | SOC & DFIR"
+
+  [params.label]
+    text = "DUYSEC"
 
   [[params.socialIcons]]
     name = "github"
@@ -21,10 +30,22 @@ theme = 'PaperMod'
 
 [menu]
   [[menu.main]]
-    name = "Posts"
-    url = "/posts/"
+    name = "Home"
+    url = "/"
     weight = 1
   [[menu.main]]
-    name = "Tags"
-    url = "/tags/"
+    name = "Posts"
+    url = "/posts/"
     weight = 2
+  [[menu.main]]
+    name = "Archive"
+    url = "/archives/"
+    weight = 3
+  [[menu.main]]
+    name = "Search"
+    url = "/search/"
+    weight = 4
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 5

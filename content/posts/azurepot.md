@@ -7,6 +7,10 @@ categories = ["Writeups"]
 summary = "Điều tra một honeypot Ubuntu trên Azure bị khai thác CVE-2021-41773: phân tích disk image, UAC và memory dump."
 ShowToc = true
 TocOpen = false
+
+[cover]
+  image = "/images/hero-cyber-city.png"
+  alt = "Cyber city forensic blog cover"
 +++
 
 ## Tổng quan
