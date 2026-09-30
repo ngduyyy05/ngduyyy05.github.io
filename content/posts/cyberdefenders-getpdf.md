@@ -18,7 +18,7 @@ Lab GetPDF tập trung vào chuỗi tấn công qua PDF độc hại: nạn nhâ
 **Artifacts:** `lala.pcap`, PDF trích xuất từ HTTP traffic.  
 **Tools:** Wireshark, `pdfid`, `peepdf`, PDFStreamDumper, CyberChef, `scdbg`.
 
-![GetPDF tooling overview](https://miro.medium.com/v2/resize:fit:700/1*0Mkt_OQWUDbNa9hprJEv9A.png)
+![GetPDF tooling overview](/images/imported/getpdf/getpdf-01.png)
 
 ## Q1: How many URL path(s) are involved in this incident?
 
@@ -30,7 +30,7 @@ http.request
 
 Đếm các URL path xuất hiện trong incident. Một số path có thể trùng request nhưng vẫn cần xem theo chuỗi truy cập.
 
-![HTTP requests in Wireshark](https://miro.medium.com/v2/resize:fit:700/1*OXoZByxPPKgNhPNraOZoLQ.jpeg)
+![HTTP requests in Wireshark](/images/imported/getpdf/getpdf-02.jpg)
 
 **Answer:** `6`
 
@@ -42,11 +42,11 @@ Lọc các HTTP response rồi inspect body. Response đáng chú ý chứa HTML
 http.response
 ```
 
-![HTTP response filter](https://miro.medium.com/v2/resize:fit:700/1*LUAyFPjjzp9uTwVU-xtC9A.jpeg)
+![HTTP response filter](/images/imported/getpdf/getpdf-03.jpg)
 
 Trong HTTP stream, JavaScript nằm ở response của path forensic challenge.
 
-![HTML response containing script](https://miro.medium.com/v2/resize:fit:700/1*FTME1lAujwHwegfaSik77A.jpeg)
+![HTML response containing script](/images/imported/getpdf/getpdf-04.jpg)
 
 **Answer:** `http://blog.honeynet.org.my/forensic_challenge/`
 
@@ -58,17 +58,17 @@ Export HTTP object chứa HTML/JS:
 File -> Export Objects -> HTTP
 ```
 
-![Export HTTP object](https://miro.medium.com/v2/resize:fit:700/1*mi-QHzWHDupLHtfRx47pvA.png)
+![Export HTTP object](/images/imported/getpdf/getpdf-05.png)
 
 Beautify đoạn JavaScript để nhìn rõ luồng xử lý.
 
-![Beautified obfuscated JavaScript](https://miro.medium.com/v2/resize:fit:700/1*eUkNpo05M94h1PcZv69kog.jpeg)
+![Beautified obfuscated JavaScript](/images/imported/getpdf/getpdf-06.jpg)
 
 Đoạn code bị obfuscate, nhưng biến cuối được truyền vào hàm thực thi. Log biến đó trong môi trường an toàn sẽ reveal URL ẩn.
 
-![Logging decoded JavaScript variable](https://miro.medium.com/v2/resize:fit:700/1*j5l2W0eq4t4vHytAR2J1TQ.jpeg)
+![Logging decoded JavaScript variable](/images/imported/getpdf/getpdf-07.jpg)
 
-![Decoded JavaScript output](https://miro.medium.com/v2/resize:fit:700/1*QbO3wW826-HoZgH5V7GTRQ.jpeg)
+![Decoded JavaScript output](/images/imported/getpdf/getpdf-08.jpg)
 
 **Answer:** `http://blog.honeynet.org.my/forensic_challenge/getpdf.php`
 
@@ -76,7 +76,7 @@ Beautify đoạn JavaScript để nhìn rõ luồng xử lý.
 
 Quay lại Wireshark, export HTTP objects và lưu file PDF được tải về.
 
-![Export PDF object](https://miro.medium.com/v2/resize:fit:700/1*wBUpCPJY0-KkEOFraL4PJQ.jpeg)
+![Export PDF object](/images/imported/getpdf/getpdf-09.jpg)
 
 Tính MD5 của PDF đã export:
 
@@ -84,7 +84,7 @@ Tính MD5 của PDF đã export:
 Get-FileHash .\fcexploit.pdf -Algorithm MD5
 ```
 
-![MD5 hash of PDF](https://miro.medium.com/v2/resize:fit:700/1*U1lAFGmVMKwxjbMIWHX3wg.jpeg)
+![MD5 hash of PDF](/images/imported/getpdf/getpdf-10.jpg)
 
 **Answer:** `659cf4c6baa87b082227540047538c2a`
 
@@ -96,11 +96,11 @@ Dùng `pdfid` để thống kê object và indicator trong PDF.
 py -m pdfid .\fcexploit.pdf
 ```
 
-![pdfid object count](https://miro.medium.com/v2/resize:fit:700/1*JYEQnv0DxI_M89pb1jRtEg.jpeg)
+![pdfid object count](/images/imported/getpdf/getpdf-11.jpg)
 
 Các keyword như `/JS`, `/JavaScript`, `/OpenAction`, `/EmbeddedFile` là dấu hiệu PDF có nội dung cần phân tích sâu hơn.
 
-![Suspicious PDF keywords](https://miro.medium.com/v2/resize:fit:700/1*JVUImvpCcZkKM0q9PqXr7Q.png)
+![Suspicious PDF keywords](/images/imported/getpdf/getpdf-12.png)
 
 **Answer:** `19`
 
@@ -108,7 +108,7 @@ Các keyword như `/JS`, `/JavaScript`, `/OpenAction`, `/EmbeddedFile` là dấu
 
 Mở PDF bằng editor hoặc parser rồi tìm keyword `Filter`. Các filter cho biết stream cần decode theo cơ chế nào.
 
-![PDF filters](https://miro.medium.com/v2/resize:fit:700/1*4ES2B59UCkOEE2XMHc_EIQ.jpeg)
+![PDF filters](/images/imported/getpdf/getpdf-13.jpg)
 
 **Answer:** `4`
 
@@ -116,29 +116,29 @@ Mở PDF bằng editor hoặc parser rồi tìm keyword `Filter`. Các filter ch
 
 Dùng PDFStreamDumper để load PDF và duyệt các object. Object số `5` chứa JavaScript đáng ngờ.
 
-![PDFStreamDumper object 5](https://miro.medium.com/v2/resize:fit:700/1*mDkFw5MnhglDeOIJy7ZUrw.png)
+![PDFStreamDumper object 5](/images/imported/getpdf/getpdf-14.png)
 
 Beautify JS trong object này để đọc logic.
 
-![Object 5 JavaScript beautified](https://miro.medium.com/v2/resize:fit:700/1*0nuCrRAeD2zpBqN3xcCmUw.png)
+![Object 5 JavaScript beautified](/images/imported/getpdf/getpdf-15.png)
 
 JS duyệt annotations và lấy dữ liệu từ metadata/object khác, nên cần lần tiếp sang các object được tham chiếu.
 
-![peepdf object navigation](https://miro.medium.com/v2/resize:fit:700/1*znbn_0y4hf-CYZF5fD5u5g.jpeg)
+![peepdf object navigation](/images/imported/getpdf/getpdf-16.jpg)
 
-![peepdf info output](https://miro.medium.com/v2/resize:fit:287/1*h-ibhAy3l24l5jKAoLox3w.jpeg)
+![peepdf info output](/images/imported/getpdf/getpdf-17.jpg)
 
-![peepdf info object](https://miro.medium.com/v2/resize:fit:700/1*_bChGuROAsYIDg_CBQ5vzA.jpeg)
+![peepdf info object](/images/imported/getpdf/getpdf-18.jpg)
 
 Object `10` chứa chuỗi bị obfuscate bằng pattern thay thế.
 
-![Object 10 obfuscated data](https://miro.medium.com/v2/resize:fit:650/1*wSidI63JsnLecJmc9Ot4tw.jpeg)
+![Object 10 obfuscated data](/images/imported/getpdf/getpdf-19.jpg)
 
 Sau khi thay pattern bằng `0x`/decode trong CyberChef, sẽ ra đoạn JavaScript trung gian.
 
-![CyberChef decode object data](https://miro.medium.com/v2/resize:fit:700/1*ml-QvVTBE561E6LtFOHRgQ.jpeg)
+![CyberChef decode object data](/images/imported/getpdf/getpdf-20.jpg)
 
-![Beautified intermediate JavaScript](https://miro.medium.com/v2/resize:fit:392/1*6sTviF7v-BdAPlbWeJn2EA.png)
+![Beautified intermediate JavaScript](/images/imported/getpdf/getpdf-21.png)
 
 **Answer:** `5`
 
@@ -146,15 +146,15 @@ Sau khi thay pattern bằng `0x`/decode trong CyberChef, sẽ ra đoạn JavaScr
 
 Từ logic ở Q7, các pattern tiếp theo dẫn tới object `7` và `9`. Hai object này giữ hai phần của JavaScript chịu trách nhiệm tạo/executing shellcode.
 
-![Object 7 shellcode JavaScript data](https://miro.medium.com/v2/resize:fit:700/1*wsHy9pnryN-S1m-97Qftzw.png)
+![Object 7 shellcode JavaScript data](/images/imported/getpdf/getpdf-22.png)
 
-![Object 9 shellcode JavaScript data](https://miro.medium.com/v2/resize:fit:700/1*Y99iBgbHFOnACzwIYksclA.png)
+![Object 9 shellcode JavaScript data](/images/imported/getpdf/getpdf-23.png)
 
 Thay pattern bằng `%`, URL-decode hai phần rồi ghép lại.
 
-![Decoded object stream](https://miro.medium.com/v2/resize:fit:700/1*eS0XF8iT8k_WcmgSkGEkkQ.png)
+![Decoded object stream](/images/imported/getpdf/getpdf-24.png)
 
-![Combined decoded JavaScript](https://miro.medium.com/v2/resize:fit:700/1*uxb3VSzDPkVbsdI0na04_w.png)
+![Combined decoded JavaScript](/images/imported/getpdf/getpdf-25.png)
 
 **Answer:** `7,9`
 
@@ -162,9 +162,9 @@ Thay pattern bằng `%`, URL-decode hai phần rồi ghép lại.
 
 Trong JavaScript đã ghép, payload shellcode nằm trong chuỗi `%uXXXX`. Trích chuỗi đó ra file text rồi chuyển `%uXXXX` thành bytes little-endian để có `shellcode.bin`.
 
-![Extracting encoded shellcode](https://miro.medium.com/v2/resize:fit:700/1*-GG32eMRjH4SSPz4pzfuZg.png)
+![Extracting encoded shellcode](/images/imported/getpdf/getpdf-26.png)
 
-![Writing shellcode bytes](https://miro.medium.com/v2/resize:fit:700/1*jtUJbOTGH_SEzSDjvur9PA.png)
+![Writing shellcode bytes](/images/imported/getpdf/getpdf-27.png)
 
 Sau khi có shellcode, emulate bằng `scdbg` trong môi trường phân tích:
 
@@ -172,11 +172,11 @@ Sau khi có shellcode, emulate bằng `scdbg` trong môi trường phân tích:
 scdbg.exe /f shellcode.bin
 ```
 
-![Running scdbg](https://miro.medium.com/v2/resize:fit:700/1*e35w-UIo3ADSRBl_L8WzWw.png)
+![Running scdbg](/images/imported/getpdf/getpdf-28.png)
 
 `scdbg` cho thấy shellcode gọi `URLDownloadToFileA`, ghi file vào thư mục system32 rồi chạy file đó.
 
-![scdbg dropped executable path](https://miro.medium.com/v2/resize:fit:700/1*4hvsYouuya0rcpupryFwbQ.png)
+![scdbg dropped executable path](/images/imported/getpdf/getpdf-29.png)
 
 **Answer:** `c:\WINDOWS\system32\a.exe`
 
@@ -184,9 +184,9 @@ scdbg.exe /f shellcode.bin
 
 Quay lại HTTP objects/requests trong PCAP. Có một executable được tải về với tên `the_real_malware.exe`.
 
-![HTTP object for executable payload](https://miro.medium.com/v2/resize:fit:700/1*mlfR5thmlSIrFNJSol5wFg.png)
+![HTTP object for executable payload](/images/imported/getpdf/getpdf-30.png)
 
-![Full request URL for malware](https://miro.medium.com/v2/resize:fit:700/1*UvdJl12R2NBtt0HQQi2s_A.jpeg)
+![Full request URL for malware](/images/imported/getpdf/getpdf-31.jpg)
 
 **Answer:** `http://blog.honeynet.org.my/forensic_challenge/the_real_malware.exe`
 
@@ -194,11 +194,11 @@ Quay lại HTTP objects/requests trong PCAP. Có một executable được tải
 
 PDFStreamDumper/decoded JavaScript cho thấy có nhiều payload strings liên quan tới các exploit khác nhau; tổng số CVE cần trả lời là `5`.
 
-![Payload string review](https://miro.medium.com/v2/resize:fit:700/1*5jEcbseGFTUuqixMmV0L_A.jpeg)
+![Payload string review](/images/imported/getpdf/getpdf-32.jpg)
 
-![Exploit/CVE review](https://miro.medium.com/v2/resize:fit:700/1*CvotVCIhZQrTyjT0r-AOlg.jpeg)
+![Exploit/CVE review](/images/imported/getpdf/getpdf-33.jpg)
 
-![Final CVE count context](https://miro.medium.com/v2/resize:fit:700/1*W4Hiujn2if84jFgC4ga-vw.jpeg)
+![Final CVE count context](/images/imported/getpdf/getpdf-34.jpg)
 
 **Answer:** `5`
 
