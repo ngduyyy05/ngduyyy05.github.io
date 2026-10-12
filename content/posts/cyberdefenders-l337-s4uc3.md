@@ -22,7 +22,7 @@ Lab l337 S4uc3 kết hợp phân tích lưu lượng mạng với bộ nhớ Lin
 
 **Quy ước thời gian:** đáp án thời gian trong bài dùng UTC. Một số ảnh hiển thị UTC+7, nên phải đổi cả ngày lẫn giờ khi đối chiếu. Ảnh chụp là kết quả thực hành; bài không giả định đã chạy lại PCAP hoặc memory dump trong lần biên tập này.
 
-## Q1: Public IP của webserver
+## Q1: PCAP: Development.wse.local is a critical asset for the Wayne and Stark Enterprises, where the company stores new top-secret designs on weapons. Jon Smith has access to the website and we believe it may have been compromised, according to the IDS alert we received earlier today. First, determine the Public IP Address of the webserver?
 
 Website cần điều tra là `development.wse.local`. Bắt đầu từ HTTP để tìm địa chỉ nội bộ của server, sau đó kiểm tra các request liên quan:
 
@@ -40,7 +40,7 @@ Trong ảnh, frame 617 gửi đến IP nội bộ `172.16.0.108`, nhưng HTTP he
 
 > **Đáp án:** `74.204.41.73`
 
-## Q2: Arrival time của frame 1
+## Q2: PCAP: Alright, now we need you to determine a starting point for the timeline that will be useful in mapping out the incident. Please determine the arrival time of frame 1 in the "GrrCON.pcapng" evidence file.
 
 Mở **Statistics → Capture File Properties** để xem thời điểm gói đầu tiên. Có thể kiểm tra trực tiếp frame bằng:
 
@@ -54,7 +54,7 @@ frame.number == 1
 
 > **Đáp án:** `22:51:07 UTC`
 
-## Q3: Phiên bản PHP
+## Q3: PCAP: What version number of PHP is the development.wse.local server running?
 
 Chọn request đến website và mở **Follow → HTTP Stream**. Phiên bản PHP xuất hiện trong response header `X-Powered-By`:
 
@@ -68,7 +68,7 @@ X-Powered-By: PHP/5.3.2-1ubuntu4.20
 
 > **Đáp án:** `5.3.2`
 
-## Q4: Phiên bản Apache
+## Q4: PCAP: What version number of Apache is the development.wse.local web server using?
 
 Dùng cùng HTTP response ở Q3. Header `Server` cho biết phần mềm webserver và phiên bản được công bố:
 
@@ -80,7 +80,7 @@ Chỉ lấy số phiên bản Apache; đây là thông tin từ banner HTTP, kh�
 
 > **Đáp án:** `2.2.14`
 
-## Q5: Malware được IDS cảnh báo
+## Q5: IR: What is the common name of the malware reported by the IDS alert provided?
 
 Mở `IR-Alert.png` và đọc tên signature. Cảnh báo nhắc đến **Zeus**, vì vậy đây là tên malware mà câu hỏi yêu cầu, không phải tên file tải xuống hay một địa chỉ IP.
 
@@ -88,7 +88,7 @@ Mở `IR-Alert.png` và đọc tên signature. Cảnh báo nhắc đến **Zeus*
 
 > **Đáp án:** `Zeus`
 
-## Q6: Gateway của LAN
+## Q6: PCAP: Please identify the Gateway IP address of the LAN because the infrastructure team reported a potential problem with the IDS server that could have corrupted the PCAP
 
 Địa chỉ gateway trong bài là `172.16.0.1`. Ảnh cho thấy địa chỉ này trao đổi với webserver, nhưng chỉ riêng một cuộc hội thoại HTTP chưa đủ chứng minh vai trò gateway.
 
@@ -102,7 +102,7 @@ arp
 
 > **Đáp án:** `172.16.0.1`
 
-## Q7: IP được Zeus dùng để kiểm tra kết nối
+## Q7: IR: According to the IDS alert, the Zeus bot attempted to ping an external website to verify connectivity. What was the IP address of the website pinged?
 
 Đọc trường **Destination IP** trong cảnh báo. Ảnh ghi nguồn `172.16.0.109`, đích `74.125.225.112` và mô tả Zeus gửi GET đến Google để kiểm tra Internet.
 
@@ -112,7 +112,7 @@ Dù đề dùng từ “ping”, payload trong ảnh là HTTP `GET /webhp`, khô
 
 > **Đáp án:** `74.125.225.112`
 
-## Q8: IP máy chủ C2 của Zeus
+## Q8: PCAP: It’s critical to the infrastructure team to identify the Zeus Bot CNC server IP address so they can block communication in the firewall as soon as possible. Please provide the IP address?
 
 Bắt đầu từ địa chỉ đã xác định ở Q7:
 
@@ -142,7 +142,7 @@ ip.addr == 88.198.6.20
 
 > **Đáp án:** `88.198.6.20`
 
-## Q9: File cấu hình .bin
+## Q9: PCAP: The infrastructure team also requests that you identify the filename of the “.bin” configuration file that the Zeus bot downloaded right after the infection. Please provide the file name?
 
 Mở **File → Export Objects → HTTP** và tìm tên file có đuôi `.bin`. Danh sách trong ảnh ghi nhận `cf.bin`, hostname `88.198.6.20`, kích thước 446 byte.
 
@@ -156,7 +156,7 @@ http.request.uri contains ".bin"
 
 > **Đáp án:** `cf.bin`
 
-## Q10: Mật khẩu đăng nhập WordPress
+## Q10: PCAP: No other users accessed the development.wse.local WordPress site during the timeline of the incident and the reports indicate that an account successfully logged in from the external interface. Please provide the password they used to log in to the WordPress page around 6:59 PM EST?
 
 Lọc các request đăng nhập:
 
@@ -172,7 +172,7 @@ Mở form data hoặc Follow HTTP Stream để đọc các trường `log` và `
 
 > **Đáp án:** `wM812ugu`
 
-## Q11: Thời điểm truy cập trang Designs
+## Q11: PCAP: After reporting that the WordPress page was indeed accessed from an external connection, your boss comes to you in a rage over the potential loss of confidential top-secret documents. He calms down enough to admit that the design's page has a separate access code outside to ensure the security of their information. Before storming off he provided the password to the designs page “1qBeJ2Az” and told you to find a timestamp of the access time or you will be fired. Please provide the time of the accessed Designs page?
 
 Mật khẩu bảo vệ nội dung được đề cung cấp là `1qBeJ2Az`. Tìm request POST có chuỗi này:
 
@@ -186,7 +186,7 @@ Trong ảnh, frame 5743 gửi `POST /wp-pass.php`, trường `post_password` đ�
 
 > **Đáp án:** `23:04:04 UTC`
 
-## Q12: Source port của shellcode exploit
+## Q12: PCAP: What is the source port number in the shellcode exploit? Dest Port was 31708 IDS Signature GPL SHELLCODE x86 inc ebx NOOP
 
 Đề cho destination port `31708`. Lọc UDP theo cổng đích:
 
@@ -200,7 +200,7 @@ Chọn gói **UDP** và mở phần User Datagram Protocol. Frame 348 hiển th�
 
 > **Đáp án:** `39709`
 
-## Q13: Linux kernel version trong phản hồi sysinfo
+## Q13: PCAP: What was the Linux kernel version returned from the meterpreter sysinfo command run by the attacker?
 
 Theo dõi TCP stream 155 để đọc dữ liệu trao đổi trong phiên Meterpreter:
 
@@ -214,7 +214,7 @@ Tìm `sysinfo` hoặc chuỗi `Linux`. Kết quả trong ảnh chứa hostname `
 
 > **Đáp án:** `2.6.32-38-server`
 
-## Q14: Token trong frame 3897
+## Q14: PCAP: What is the value of the token passed in frame 3897?
 
 Đi thẳng tới frame được hỏi:
 
@@ -228,7 +228,7 @@ Mở phần **HTML Form URL Encoded**, chọn trường `token` và sao chép gi
 
 > **Đáp án:** `b7aad621db97d56771d6316a6d0b71e9`
 
-## Q15: Công cụ tải file nén từ webserver
+## Q15: PCAP: What was the tool that was used to download a compressed file from the webserver?
 
 Lọc request có tên file nén:
 
@@ -242,7 +242,7 @@ Frame 5304 yêu cầu `/unimportant.tar.gz`. Header `User-Agent` chứa `Wget/1.
 
 > **Đáp án:** `wget`
 
-## Q16: Tên executable tải về liên quan đến Zeus
+## Q16: PCAP: What is the download file name the user launched the Zeus bot?
 
 Lọc HTTP request của máy bị nhiễm và quan sát các URI tải executable:
 
@@ -256,7 +256,7 @@ Frame 3510 ghi `GET /bt.exe` tới `88.198.6.20`, tiếp sau là tải `cf.bin` 
 
 > **Đáp án:** `bt.exe`
 
-## Q17: Đường dẫn system shell
+## Q17: Memory: What is the full file path of the system shell spawned through the attacker's meterpreter session?
 
 Chuyển sang memory dump và liệt kê command line của các tiến trình:
 
@@ -270,7 +270,7 @@ python2 /opt/volatility/vol.py -f /tmp/webserver.vmss --profile=LinuxDFIRwebsvrx
 
 > **Đáp án:** `/bin/sh`
 
-## Q18: Parent PID của chuỗi shell
+## Q18: Memory: What is the Parent Process ID of the two 'sh' sessions?
 
 Liệt kê PID và PPID:
 
@@ -290,7 +290,7 @@ python2 /opt/volatility/vol.py -f /tmp/webserver.vmss --profile=LinuxDFIRwebsvrx
 
 > **Đáp án:** `1042`
 
-## Q19: latency_record_count của PID 1274
+## Q19: Memory: What is the latency_record_count for PID 1274?
 
 Mở shell tương tác để đọc cấu trúc tiến trình trong memory dump:
 
@@ -312,7 +312,7 @@ dt("task_struct", 0xffff880006dd8000)
 
 > **Đáp án:** `0`
 
-## Q20: File được map đầu tiên của PID 1274
+## Q20: Memory: For the PID 1274, what is the first mapped file path?
 
 Lấy danh sách vùng nhớ riêng cho tiến trình cần kiểm tra:
 
@@ -328,7 +328,7 @@ Q17 hỏi đường dẫn được gọi trong command line, còn Q20 hỏi file
 
 > **Đáp án:** `/bin/dash`
 
-## Q21: MD5 của receive.1105.3
+## Q21: Memory:What is the md5hash of the receive.1105.3 file out of the per-process packet queue?
 
 Tạo thư mục đầu ra rồi trích các packet queue từ bộ nhớ:
 
