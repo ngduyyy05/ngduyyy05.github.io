@@ -20,8 +20,6 @@ Lab l337 S4uc3 kết hợp phân tích lưu lượng mạng với bộ nhớ Lin
 
 **Công cụ:** Wireshark, Volatility 2 và `md5sum`.
 
-Các lệnh Volatility bên dưới dùng đường dẫn giống môi trường trong ảnh: `python2 /opt/volatility/vol.py`, dump tại `/tmp/webserver.vmss`. Cần thay đường dẫn nếu lưu ở nơi khác và nạp đúng profile trước khi chạy. Đây là cú pháp Volatility 2, không dùng trực tiếp cho Volatility 3.
-
 **Quy ước thời gian:** đáp án thời gian trong bài dùng UTC. Một số ảnh hiển thị UTC+7, nên phải đổi cả ngày lẫn giờ khi đối chiếu. Ảnh chụp là kết quả thực hành; bài không giả định đã chạy lại PCAP hoặc memory dump trong lần biên tập này.
 
 ## Q1: Public IP của webserver
