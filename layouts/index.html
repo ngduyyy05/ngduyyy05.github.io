@@ -2,88 +2,60 @@
 {{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
 {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true" }}
 {{- $paginator := .Paginate $pages }}
-
-<section class="blog-home">
-  <div class="home-hero">
+<div class="blog-home">
+  <section class="home-hero" aria-labelledby="site-heading">
     <div class="home-hero__inner">
-      <aside class="profile-panel" aria-label="Author profile">
-        <img src="/images/hero-cyber-city.png" alt="Cyber city artwork">
-        <div class="profile-panel__body">
-          <p class="profile-panel__name">Duy Nguyen</p>
-          <p class="profile-panel__role">CTF Player | SOC &amp; DFIR Notes</p>
-          <div class="profile-panel__line" aria-hidden="true"></div>
-        </div>
-      </aside>
-
-      <div class="hero-copy">
-        <p class="hero-copy__eyebrow">blue team lab notes</p>
-        <h1>Security write-ups, forensic notes, and CTF trails.</h1>
-        <p>Ghi chú học tập về memory forensic, disk forensic, malware triage và những bài CTF đáng giữ lại để đọc lại sau.</p>
-      </div>
+      <p class="hero-kicker">SOC / DFIR / CTF</p>
+      <h1 id="site-heading">DUYSEC<span aria-hidden="true">.</span></h1>
+      <p class="hero-description">Security write-ups, forensic notes, and CTF trails.</p>
+      <div class="hero-meta"><span>Research &amp; field notes</span><span>{{ len $pages }} published writeups</span></div>
     </div>
-  </div>
-
+  </section>
   <div class="home-content">
-    <section class="post-stream" aria-label="Latest posts">
+    <aside class="home-sidebar" aria-label="Author and topics">
+      <section class="profile-panel">
+        <img class="profile-avatar" src="{{ "images/avatar-duy.jpg" | relURL }}" alt="Sunset piano artwork, Duy Nguyen's avatar" width="1280" height="879" fetchpriority="high">
+        <div class="profile-panel__body">
+          <h2 class="profile-panel__name">Duy Nguyen</h2>
+          <p class="profile-panel__role">CTF Player · SOC &amp; DFIR</p>
+          <p class="profile-bio">Ghi chép từ những buổi thực hành, điều tra và giải CTF.</p>
+          <div class="profile-links">
+            {{ partial "social_icons.html" (dict "align" "left") }}
+            <a class="profile-about" href="{{ "about/" | relURL }}">About me <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+      <section class="sidebar-topics" aria-labelledby="topics-heading">
+        <h2 id="topics-heading">Topics</h2>
+        <ul class="topic-list">
+          {{- range first 8 site.Taxonomies.tags.ByCount }}
+          <li><a href="{{ .Page.RelPermalink }}"><span>{{ .Page.LinkTitle }}</span><span class="topic-count">{{ .Count }}</span></a></li>
+          {{- end }}
+        </ul>
+        <a class="all-topics" href="{{ "tags/" | relURL }}">All topics <span aria-hidden="true">→</span></a>
+      </section>
+    </aside>
+    <section class="post-stream" aria-labelledby="latest-heading">
+      <div class="stream-heading"><h2 id="latest-heading">Latest writeups</h2><a href="{{ "archives/" | relURL }}">Archive <span aria-hidden="true">↗</span></a></div>
       {{- range $paginator.Pages }}
       <article class="post-entry">
         {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
         {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
-        <header class="entry-header">
-          <h2 class="entry-hint-parent">{{ .Title }}</h2>
-        </header>
-        {{- if (ne (.Param "hideSummary") true) }}
-        <div class="entry-content">
-          <p>{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
-        </div>
-        {{- end }}
-        {{- if not (.Param "hideMeta") }}
-        <footer class="entry-footer">
-          {{- partial "post_meta.html" . -}}
-        </footer>
-        {{- end }}
-        <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
+        <div class="entry-meta-top"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "02 Jan 2006" }}</time>{{ with .Params.tags }}<span class="entry-topic">{{ index . 0 }}</span>{{ end }}</div>
+        <header class="entry-header"><h3>{{ .Title }}</h3></header>
+        <div class="entry-content"><p>{{ .Summary | plainify | htmlUnescape }}</p></div>
+        <footer class="entry-footer"><span>{{ .ReadingTime }} min read</span><span class="entry-read">Read writeup <span aria-hidden="true">↗</span></span></footer>
+        <a class="entry-link" aria-label="Read {{ .Title | plainify }}" href="{{ .RelPermalink }}"></a>
       </article>
       {{- end }}
-
       {{- if gt $paginator.TotalPages 1 }}
-      <footer class="page-footer">
-        <nav class="pagination">
-          {{- if $paginator.HasPrev }}
-          <a class="prev" href="{{ $paginator.Prev.URL | absURL }}">Prev</a>
-          {{- end }}
-          {{- if $paginator.HasNext }}
-          <a class="next" href="{{ $paginator.Next.URL | absURL }}">Next</a>
-          {{- end }}
-        </nav>
-      </footer>
+      <nav class="pagination" aria-label="Post pages">
+        {{- if $paginator.HasPrev }}<a class="prev" href="{{ $paginator.Prev.URL }}">← Newer</a>{{- end }}
+        <span class="page-count">{{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}</span>
+        {{- if $paginator.HasNext }}<a class="next" href="{{ $paginator.Next.URL }}">Older →</a>{{- end }}
+      </nav>
       {{- end }}
     </section>
-
-    <aside class="home-sidebar" aria-label="Blog overview">
-      <section class="sidebar-block">
-        <h2>Overview</h2>
-        <div class="stat-grid">
-          <div class="stat-item">
-            <strong>{{ len $pages }}</strong>
-            <span>posts</span>
-          </div>
-          <div class="stat-item">
-            <strong>{{ len site.Taxonomies.tags }}</strong>
-            <span>tags</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="sidebar-block">
-        <h2>Focus</h2>
-        <div class="tag-cloud">
-          {{- range first 12 site.Taxonomies.tags.ByCount }}
-          <a href="{{ .Page.RelPermalink }}">#{{ .Page.LinkTitle }}</a>
-          {{- end }}
-        </div>
-      </section>
-    </aside>
   </div>
-</section>
+</div>
 {{- end }}
