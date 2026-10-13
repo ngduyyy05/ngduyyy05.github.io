@@ -22,7 +22,7 @@ theme = 'PaperMod'
     Content = "CTF Player | SOC & DFIR"
 
   [params.label]
-    text = "DUYSEC"
+    text = "Sh4d3n"
 
   [[params.socialIcons]]
     name = "github"
