@@ -148,7 +148,7 @@ exim4-daemon-light_4.69-9_i386.deb
 
 ![Tên gói Exim4 daemon light phiên bản 4.69-9](/images/imported/ulysses/ulysses-10.png)
 
-Đối chiếu với thông báo bảo mật Debian: **CVE-2010-4344** là lỗi hỏng bộ nhớ của Exim, liên quan đến heap buffer overflow trong hàm `string_vformat`. Việc xử lý và ghi log một thông điệp SMTP có header được tạo đặc biệt có thể dẫn tới thực thi mã. Debian đã sửa lỗi này trong **4.69-9+lenny1**; vì vậy phải đọc đủ revision của gói, không chỉ thấy `4.69` rồi kết luận. [Debian DSA-2131-1](https://lists.debian.org/debian-security-announce/2010/msg00181.html), [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2010-4344).
+Đối chiếu với thông báo bảo mật Debian: **CVE-2010-4344** là lỗi hỏng bộ nhớ của Exim, liên quan đến heap buffer overflow trong hàm `string_vformat`. Việc xử lý và ghi log một thông điệp SMTP có header được tạo đặc biệt có thể dẫn tới thực thi mã. Debian đã sửa lỗi này trong **4.69-9+lenny1**. [Debian DSA-2131-1](https://lists.debian.org/debian-security-announce/2010/msg00181.html), [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2010-4344).
 
 ![Ghi chú tra cứu CVE-2010-4344 trong quá trình thực hành](/images/imported/ulysses/ulysses-11.png)
 
