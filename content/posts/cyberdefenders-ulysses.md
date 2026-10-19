@@ -44,7 +44,7 @@ grep -i 'Failed' auth.log | sort | uniq -c
 
 ![Nhóm các dòng xác thực thất bại, gồm nhiều lần thử với ulysses và một dòng FAILED LOGIN của root](/images/imported/ulysses/ulysses-02.png)
 
-Số ở đầu mỗi dòng là số lần bản ghi đó xuất hiện. Khi rà soát, cần xem cả các lần thử với `ulysses` lẫn dòng `FAILED LOGIN` của `root`, tránh bỏ sót khi chỉ lọc theo tên tài khoản.
+Số ở đầu mỗi dòng là số lần bản ghi đó xuất hiện. Chú ý dòng `FAILED LOGIN` của `root`: đây là lần đăng nhập thất bại của root, khác với các lần thử nhắm vào user `ulysses`.
 
 Để xem nhanh tổng số dòng chứa `Failed`, dùng:
 
@@ -54,7 +54,7 @@ grep -i 'Failed' auth.log | wc -l
 
 ![Đếm các dòng chứa Failed trong auth.log](/images/imported/ulysses/ulysses-03.png)
 
-`wc -l` đếm số dòng khớp từ khóa, còn câu hỏi yêu cầu số lần đăng nhập thất bại. Đọc nội dung từng bản ghi để phân biệt các thông báo xác thực trong cùng một phiên.
+Lệnh trả về **33**, trong đó có **1 dòng đăng nhập thất bại của `root`**. Loại dòng này khỏi các lần thử nhắm vào user `ulysses`, ta được **33 - 1 = 32**.
 
 > **Đáp án:** `32`
 
