@@ -187,9 +187,9 @@ Pipeline đầu đọc phân vùng `/dev/sda1` rồi đưa dữ liệu cho `nc`;
 192.168.56.102:56955 -> 192.168.56.1:8888
 ```
 
-Hai port của kết nối là **56955** ở phía local và **8888** ở phía remote. Câu hỏi yêu cầu số lớn hơn nên đáp án là **56955**, dù `8888` mới là cổng nhận được chỉ định trong lệnh.
+Hai lệnh đều gửi dữ liệu tới `192.168.56.1` qua cổng **8888**.
 
-> **Đáp án:** `56955`
+> **Đáp án:** `8888`
 
 ## Q11: Which port did the attacker try to block on the firewall?
 
