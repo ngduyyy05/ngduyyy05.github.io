@@ -187,7 +187,7 @@ Pipeline đầu đọc phân vùng `/dev/sda1` rồi đưa dữ liệu cho `nc`;
 192.168.56.102:56955 -> 192.168.56.1:8888
 ```
 
-Hai port của kết nối là **56955** ở phía local và **8888** ở phía remote. Câu hỏi yêu cầu số lớn hơn nên đáp án là **56955**, dù `8888` mới là cổng nhận được chỉ định trong lệnh. Cần đọc đủ hai đầu kết nối để tránh trả lời nhầm cổng đích.
+Hai port của kết nối là **56955** ở phía local và **8888** ở phía remote. Câu hỏi yêu cầu số lớn hơn nên đáp án là **56955**, dù `8888` mới là cổng nhận được chỉ định trong lệnh.
 
 > **Đáp án:** `56955`
 
