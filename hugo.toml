@@ -26,7 +26,18 @@ theme = 'PaperMod'
 
   [[params.socialIcons]]
     name = "github"
+    title = "GitHub"
     url = "https://github.com/ngduyyy05"
+
+  [[params.socialIcons]]
+    name = "facebook"
+    title = "Facebook"
+    url = "https://www.facebook.com/share/19hjonNzp7/"
+
+  [[params.socialIcons]]
+    name = "email"
+    title = "Email"
+    url = "mailto:duynguyenhuu419@gmail.com"
 
 [menu]
   [[menu.main]]
