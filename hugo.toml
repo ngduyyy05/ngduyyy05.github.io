@@ -19,7 +19,7 @@ theme = 'PaperMod'
 
   [params.homeInfoParams]
     Title = "Duy Nguyen"
-    Content = "CTF Player | SOC & DFIR"
+    Content = "CTF Player | Web & Forensic"
 
   [params.label]
     text = "Sh4d3n"
