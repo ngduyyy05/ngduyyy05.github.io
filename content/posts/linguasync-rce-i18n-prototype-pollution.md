@@ -101,15 +101,9 @@ Chuỗi nguyên nhân và kết quả trong bài lab:
 
 Hai lỗi nằm ở hai khu vực chức năng khác nhau. Chỉ kiểm tra riêng API i18n hoặc riêng chức năng xuất báo cáo có thể bỏ sót chuỗi tác động chéo này.
 
-Tác động đến `child_process.spawn()` phụ thuộc cách ứng dụng xây dựng, sao chép và truyền đối tượng options, cùng phiên bản Node.js. Kết quả trong tài liệu xác nhận hành vi của môi trường lab; không nên suy ra mọi lời gọi `spawn()` đều bị ảnh hưởng chỉ vì `Object.prototype.shell` tồn tại.
+Tác động đến `child_process.spawn()` phụ thuộc cách ứng dụng xây dựng, sao chép và truyền đối tượng options, cùng phiên bản Node.js. Kết quả trong tài liệu xác nhận hành vi của môi trường lab.
 
-## 5. Ghi chú khi kiểm thử
-
-Tài liệu gốc ghi nhận cách xử lý query string mặc định của Express không hoạt động như giả định ban đầu, nhưng không kèm payload thử nghiệm hoặc cấu hình parser tương ứng. Vì vậy, khi tái hiện cần kiểm tra giá trị thực tế của `req.query` trong môi trường được phép kiểm thử.
-
-Request thành công được ghi lại trong bài sử dụng trực tiếp hai tham số `lng=__proto__` và `ns=shell`.
-
-## 6. Biện pháp khắc phục
+## 5. Biện pháp khắc phục
 
 - Không dùng tham số người dùng làm đường dẫn thuộc tính tùy ý. Giới hạn `lng` và `ns` theo danh sách giá trị hợp lệ; chặn các khóa nguy hiểm như `__proto__`, `constructor` và `prototype` ở mọi cấp.
 - Dùng `Object.hasOwn()` khi duyệt khóa để phân biệt thuộc tính riêng với thuộc tính kế thừa. Cân nhắc `Object.create(null)` hoặc `Map` cho cấu trúc dữ liệu dạng từ điển; vẫn cần kiểm soát khóa đầu vào.
