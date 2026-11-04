@@ -220,7 +220,7 @@ Cookie: _pipeforge_auth=<forged_token>
 }
 ```
 
-Nếu `/flag.txt` không tồn tại, phần lệnh sau `||` chỉ tìm đường dẫn file; cần đọc tiếp file tìm được để lấy nội dung. Trong ảnh kết quả bên dưới, lệnh thực tế là `cat /root/flag.txt` và field `output` trả về flag. Blacklist `/root` tại webhook không áp dụng cho route chạy pipeline, nên bước RCE đọc được file mà primitive file read ban đầu không truy cập được.
+Nếu `/flag.txt` không tồn tại, phần lệnh sau `||` chỉ tìm đường dẫn file; cần đọc tiếp file tìm được để lấy nội dung.
 
 ![Kết quả thực thi lệnh và đọc flag trong lab](/images/imported/pipeforge/image5.png)
 
