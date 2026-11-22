@@ -1,5 +1,5 @@
 +++
-title = "WolvCTF 2026 — Split Directory: hai cách đọc một ZIP"
+title = "WolvCTF 2026 — Split Directory"
 date = 2026-11-22T00:00:00+07:00
 draft = false
 tags = ["WolvCTF 2026", "Web", "ZIP", "CRC32"]
