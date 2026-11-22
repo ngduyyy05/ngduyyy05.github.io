@@ -160,6 +160,8 @@ Server trả HTTP 200 OK cùng nội dung của shard bị hạn chế:
 }
 ~~~
 
+![Snapshot trả về flag từ restricted-v1](/images/imported/wolvctf-2026/approved-ish/approved-ish-result.png)
+
 Flag: wctf{b067644b2447025b739c58132106bbaf}
 
 ## Root cause và cách khắc phục
@@ -172,9 +174,3 @@ Có hai kiểm tra cần được ràng buộc với nhau:
 Đây là lỗi phân quyền và tính toàn vẹn của quy trình duyệt, có thể xem là TOCTOU ở mức logic. Không cần race condition: mình đổi alias sau khi approval hoàn tất rồi mới gọi snapshot.
 
 Để sửa, server cần chuẩn hóa ID trước khi tìm alias và kiểm tra quyền, áp dụng cùng chính sách cho PATCH lẫn restore, đồng thời gắn approval với phiên bản alias hoặc shard cụ thể. Snapshot cũng nên kiểm tra lại quyền truy cập ngay lúc xuất.
-
-## Minh chứng
-
-Ảnh dưới đây là phản hồi snapshot thực tế có HTTP 200, restricted-v1 và flag:
-
-![Snapshot trả về flag từ restricted-v1](/images/imported/wolvctf-2026/approved-ish/approved-ish-result.png)
